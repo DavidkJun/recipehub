@@ -1,0 +1,28 @@
+title: RecipeHub
+description: Веб-додаток для рецептів
+baseurl: "/recipehub"
+url: "https:/DavidkJun/.github.io"
+
+include:
+  - ".nojekyll"
+  - "**/*.html"
+  - "**/*.css"
+  - "**/*.js"
+  - "**/*.json"
+  - "**/*.png"
+  - "**/*.jpg"
+  - "**/*.svg"
+
+plugins: []
+
+sass:
+  style: compressed
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
