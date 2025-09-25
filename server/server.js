@@ -22,9 +22,14 @@ const readRecipes = () => {
 };
 
 const writeRecipes = (recipes) => {
+    const dataDir = path.dirname(dataPath);
+    if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true });
+    }
     fs.writeFileSync(dataPath, JSON.stringify(recipes, null, 2));
 };
 
+// API маршрути
 app.get('/api/recipes', (req, res) => {
     const recipes = readRecipes();
     res.json(recipes);
