@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecipeHub - Рецепти</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h1>🍳 RecipeHub</h1>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="index.html" class="nav-link">Головна</a></li>
+            <li><a href="recipes.html" class="nav-link active">Рецепти</a></li>
+            <li><a href="add-recipe.html" class="nav-link">Додати рецепт</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="container">
+    <section class="search-section">
+        <h2>Пошук рецептів</h2>
+        <input type="text" id="searchInput" placeholder="Введіть назву або інгредієнт...">
+        <button id="searchBtn" class="btn-primary">Пошук</button>
+    </section>
+
+    <section class="recipes-section">
+        <h2>Всі рецепти</h2>
+        <div class="view-toggle">
+            <button id="tableViewBtn" class="btn-secondary active">Таблиця</button>
+            <button id="cardViewBtn" class="btn-secondary">Картки</button>
+        </div>
+
+        <div id="recipesTable" class="recipes-view">
+            <table class="recipes-table">
+                <thead>
+                <tr>
+                    <th>Назва</th>
+                    <th>Категорія</th>
+                    <th>Час приготування</th>
+                    <th>Дії</th>
+                </tr>
+                </thead>
+                <tbody id="recipesTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div id="recipesCards" class="recipes-view hidden">
+            <div class="recipes-grid" id="recipesGrid">
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 RecipeHub. Усі права захищені.</p>
+</footer>
+
+<script src="js/recipes.js"></script>
+</body>
+</html>
