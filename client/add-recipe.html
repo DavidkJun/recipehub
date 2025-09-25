@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecipeHub - Додати рецепт</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h1>🍳 RecipeHub</h1>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="index.html" class="nav-link">Головна</a></li>
+            <li><a href="recipes.html" class="nav-link">Рецепти</a></li>
+            <li><a href="add-recipe.html" class="nav-link active">Додати рецепт</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="container">
+    <section class="add-recipe-section">
+        <h2>Додати новий рецепт</h2>
+        <form id="addRecipeForm" class="recipe-form">
+            <div class="form-group">
+                <label for="recipeName">Назва рецепту:</label>
+                <input type="text" id="recipeName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="recipeCategory">Категорія:</label>
+                <select id="recipeCategory" required>
+                    <option value="">Оберіть категорію</option>
+                    <option value="Супи">Супи</option>
+                    <option value="Основні страви">Основні страви</option>
+                    <option value="Салати">Салати</option>
+                    <option value="Десерти">Десерти</option>
+                    <option value="Паста">Паста</option>
+                    <option value="Випічка">Випічка</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cookingTime">Час приготування (хвилини):</label>
+                <input type="number" id="cookingTime" min="1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="ingredients">Інгредієнти (кожен з нового рядка):</label>
+                <textarea id="ingredients" rows="4" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="instructions">Інструкції приготування:</label>
+                <textarea id="instructions" rows="6" required></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary">Додати рецепт</button>
+        </form>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 RecipeHub. Усі права захищені.</p>
+</footer>
+
+<script src="js/add-recipe.js"></script>
+</body>
+</html>
