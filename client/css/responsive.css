@@ -1,20 +1,60 @@
 /* Адаптивний дизайн */
+/* Загальні утиліти для мобільної навігації */
+.navbar-toggle {
+    display: none;
+    background: none;
+    border: 1px solid #ddd;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.navbar-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #333;
+    position: relative;
+}
+
+.navbar-toggle span::before,
+.navbar-toggle span::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 22px;
+    height: 2px;
+    background: #333;
+}
+
+.navbar-toggle span::before { top: -6px; }
+.navbar-toggle span::after { top: 6px; }
+
 @media (max-width: 768px) {
     .navbar {
         flex-direction: column;
         padding: 1rem;
     }
 
+    .navbar .nav-brand { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+
+    .navbar-toggle { display: inline-block; }
+
     .nav-menu {
-        margin-top: 1rem;
-        flex-wrap: wrap;
-        justify-content: center;
+        margin-top: 0.75rem;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
     }
 
     .nav-link {
-        margin: 0.25rem;
-        padding: 0.5rem;
+        margin: 0.25rem 0;
+        padding: 0.75rem 0.5rem;
     }
+
+    /* Сховати меню за замовчуванням на мобільних, показувати при відкритті */
+    .nav-menu.is-collapsed { display: none; }
+    .nav-menu.is-open { display: flex; }
 
     .hero h2 {
         font-size: 2rem;
@@ -34,6 +74,8 @@
         margin-right: 0;
     }
 
+    .search-section #searchBtn { width: 100%; }
+
     .recipes-table {
         font-size: 0.9rem;
     }
@@ -45,6 +87,13 @@
 
     .container {
         padding: 0 10px;
+    }
+
+    /* Прокрутка таблиці на малих екранах */
+    .table-scroll {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }
 
@@ -73,6 +122,9 @@
     height: 200px;
     object-fit: cover;
 }
+
+/* Забезпечити адаптивність зображень скрізь */
+img, .recipe-image, .recipe-card-image { max-width: 100%; height: auto; }
 
 .recipe-card-content {
     padding: 1.5rem;
@@ -153,4 +205,10 @@
     .recipe-form {
         padding: 1rem;
     }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea { font-size: 1rem; }
+
+    .btn-primary, .btn-secondary { width: 100%; box-sizing: border-box; }
 }

@@ -29,7 +29,6 @@ const writeRecipes = (recipes) => {
     fs.writeFileSync(dataPath, JSON.stringify(recipes, null, 2));
 };
 
-// API маршрути
 app.get('/api/recipes', (req, res) => {
     const recipes = readRecipes();
     res.json(recipes);

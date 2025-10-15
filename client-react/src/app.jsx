@@ -9,7 +9,6 @@ function App() {
     const [view, setView] = useState('list') // 'list' or 'add'
     const [searchTerm, setSearchTerm] = useState('')
 
-    // Завантаження рецептів
     useEffect(() => {
         loadRecipes()
     }, [])
