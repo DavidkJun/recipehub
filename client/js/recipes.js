@@ -98,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Відображення рецептів у вигляді карток
     function displayRecipesCards(recipes) {
         recipesGrid.innerHTML = '';
 
@@ -133,6 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Відображення рецептів (залежно від вибраного виду)
     function displayRecipes(recipes) {
         if (tableViewBtn.classList.contains('active')) {
             displayRecipesTable(recipes);
@@ -141,6 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Пошук рецептів з використанням RegExp
     function searchRecipes() {
         const searchTerm = searchInput.value.trim();
 
@@ -150,17 +153,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
+            // Створення регулярного виразу для пошуку
+            // Використовуємо прапор 'i' для ігнорування регістру
             const regex = new RegExp(searchTerm, 'i');
 
             const filteredRecipes = allRecipes.filter(recipe => {
+                // Пошук за назвою
                 if (regex.test(recipe.name)) {
                     return true;
                 }
 
+                // Пошук за категорією
                 if (regex.test(recipe.category)) {
                     return true;
                 }
 
+                // Пошук за інгредієнтами
                 const foundInIngredients = recipe.ingredients.some(ingredient =>
                     regex.test(ingredient)
                 );
@@ -188,10 +196,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         } catch (error) {
             console.error('Помилка в регулярному виразі:', error);
+            // Якщо RegExp невірний, використовуємо простий пошук
             simpleSearch(searchTerm);
         }
     }
 
+    // Простий пошук (запасний варіант)
     function simpleSearch(searchTerm) {
         const term = searchTerm.toLowerCase();
 
@@ -206,6 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
         displayRecipes(filteredRecipes);
     }
 
+    // Підсвітка знайденого тексту
     function highlightText(text, searchTerm) {
         try {
             const regex = new RegExp(`(${searchTerm})`, 'gi');
@@ -215,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Показати повідомлення про відсутність результатів
     function showNoResultsMessage(viewType) {
         const message = document.createElement('div');
         message.className = 'no-results';
@@ -230,6 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Видалення рецепту
     window.deleteRecipe = async function(id) {
         if (confirm('Ви впевнені, що хочете видалити цей рецепт?')) {
             try {
@@ -238,12 +251,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 if (response.ok) {
+                    // Оновлюємо список рецептів
                     loadRecipes();
                 } else {
                     throw new Error('Помилка видалення');
                 }
             } catch (error) {
                 console.error('Помилка видалення рецепту:', error);
+                // Якщо сервер не доступний, видаляємо локально
                 allRecipes = allRecipes.filter(recipe => recipe.id !== id);
                 displayRecipes(allRecipes);
                 alert('Рецепт видалено (локально)');
@@ -251,6 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // Перегляд деталей рецепту
     window.viewRecipe = function(id) {
         const recipe = allRecipes.find(r => r.id === id);
         if (recipe) {
@@ -258,6 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // Показати деталі рецепту
     function showRecipeDetails(recipe) {
         const modal = document.createElement('div');
         modal.className = 'modal';
@@ -284,11 +301,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.body.appendChild(modal);
 
+        // Закриття модального вікна
         const closeBtn = modal.querySelector('.close');
         closeBtn.onclick = function() {
             document.body.removeChild(modal);
         };
 
+        // Закриття при кліку поза модальним вікном
         modal.onclick = function(event) {
             if (event.target === modal) {
                 document.body.removeChild(modal);
@@ -296,6 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
+    // Обробники подій
     searchBtn.addEventListener('click', searchRecipes);
 
     searchInput.addEventListener('keyup', function(event) {
@@ -303,6 +323,10 @@ document.addEventListener('DOMContentLoaded', function() {
             searchRecipes();
         }
 
+        // Пошук в реальному часі (за бажанням)
+        // if (searchInput.value.length >= 2 || searchInput.value.length === 0) {
+        //     searchRecipes();
+        // }
     });
 
     tableViewBtn.addEventListener('click', function() {
@@ -321,11 +345,14 @@ document.addEventListener('DOMContentLoaded', function() {
         displayRecipes(allRecipes);
     });
 
+    // Додаємо стилі для підсвітки та модального вікна
     addCustomStyles();
 
+    // Завантаження рецептів при завантаженні сторінки
     loadRecipes();
 });
 
+// Додавання кастомних стилів
 function addCustomStyles() {
     const styles = `
         /* Підсвітка результатів пошуку */
