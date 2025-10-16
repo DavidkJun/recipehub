@@ -1,15 +1,28 @@
-// JavaScript для сторінки рецептів з пошуком через RegExp
 document.addEventListener('DOMContentLoaded', function() {
     const recipesTableBody = document.getElementById('recipesTableBody');
     const recipesGrid = document.getElementById('recipesGrid');
     const searchInput = document.getElementById('searchInput');
     const searchBtn = document.getElementById('searchBtn');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
     const tableViewBtn = document.getElementById('tableViewBtn');
     const cardViewBtn = document.getElementById('cardViewBtn');
     const recipesTable = document.getElementById('recipesTable');
     const recipesCards = document.getElementById('recipesCards');
+    const resultsCount = document.getElementById('resultsCount');
+    const currentRange = document.getElementById('currentRange');
+    const totalRecipes = document.getElementById('totalRecipes');
+    const pageNumbers = document.getElementById('pageNumbers');
+    const firstPageBtn = document.getElementById('firstPageBtn');
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+    const lastPageBtn = document.getElementById('lastPageBtn');
+    const pageSizeSelect = document.getElementById('pageSizeSelect');
 
     let allRecipes = [];
+    let filteredRecipes = [];
+    let currentPage = 1;
+    let pageSize = 10;
+    let totalPages = 1;
 
     async function loadRecipes() {
         try {
@@ -30,12 +43,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             allRecipes = Array.from(allRecipesMap.values());
 
-            displayRecipes(allRecipes);
+            initializePagination();
+
         } catch (error) {
             console.error('Помилка завантаження рецептів:', error);
             const localRecipes = JSON.parse(localStorage.getItem('recipes') || '[]');
             allRecipes = localRecipes.length > 0 ? localRecipes : getSampleRecipes();
-            displayRecipes(allRecipes);
+            initializePagination();
         }
     }
 
@@ -64,24 +78,85 @@ document.addEventListener('DOMContentLoaded', function() {
                 cookingTime: "20 хв",
                 ingredients: ["салат айсберг", "курка", "гренки", "пармезан", "соус Цезар", "помідори"],
                 instructions: "Смажимо курку, підсмажуємо гренки, змішуємо з салатом і соусом."
-            },
-            {
-                id: "4",
-                name: "Млинці з м'ясом",
-                category: "Основні страви",
-                cookingTime: "45 хв",
-                ingredients: ["борошно", "яйця", "молоко", "фарш", "цибуля", "сметана"],
-                instructions: "Готуємо тісто, смажимо млинці, готуємо начинку."
-            },
-            {
-                id: "5",
-                name: "Шоколадний торт",
-                category: "Десерти",
-                cookingTime: "60 хв",
-                ingredients: ["борошно", "какао", "яйця", "цукор", "вершки", "шоколад"],
-                instructions: "Змішуємо інгредієнти, випікаємо, декоруємо."
             }
         ];
+    }
+
+    function initializePagination() {
+        filteredRecipes = [...allRecipes];
+        updatePagination();
+    }
+
+    function updatePagination() {
+        totalRecipes.textContent = filteredRecipes.length;
+        resultsCount.textContent = filteredRecipes.length;
+
+        totalPages = Math.ceil(filteredRecipes.length / pageSize);
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages || 1;
+        }
+
+        updatePaginationButtons();
+
+        updatePageNumbers();
+
+        displayCurrentPage();
+    }
+
+    function updatePaginationButtons() {
+        firstPageBtn.disabled = currentPage === 1;
+        prevPageBtn.disabled = currentPage === 1;
+        nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+        lastPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+    }
+
+    function updatePageNumbers() {
+        pageNumbers.innerHTML = '';
+
+        if (totalPages === 0) {
+            return;
+        }
+
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+
+        if (currentPage <= 3) {
+            endPage = Math.min(5, totalPages);
+        }
+
+        if (currentPage >= totalPages - 2) {
+            startPage = Math.max(1, totalPages - 4);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = `page-number ${i === currentPage ? 'active' : ''}`;
+            pageBtn.textContent = i;
+            pageBtn.onclick = () => goToPage(i);
+            pageNumbers.appendChild(pageBtn);
+        }
+    }
+
+    function displayCurrentPage() {
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, filteredRecipes.length);
+        const currentPageRecipes = filteredRecipes.slice(startIndex, endIndex);
+
+        if (filteredRecipes.length > 0) {
+            currentRange.textContent = `${startIndex + 1}-${endIndex}`;
+        } else {
+            currentRange.textContent = '0-0';
+        }
+
+        displayRecipes(currentPageRecipes);
+    }
+
+    function goToPage(page) {
+        if (page >= 1 && page <= totalPages) {
+            currentPage = page;
+            updatePagination();
+        }
     }
 
     function displayRecipesTable(recipes) {
@@ -157,81 +232,44 @@ document.addEventListener('DOMContentLoaded', function() {
         const searchTerm = searchInput.value.trim();
 
         if (searchTerm === '') {
-            displayRecipes(allRecipes);
-            return;
-        }
-
-        try {
-            const regex = new RegExp(searchTerm, 'i');
-
-            const filteredRecipes = allRecipes.filter(recipe => {
-                if (regex.test(recipe.name)) {
-                    return true;
-                }
-
-                if (regex.test(recipe.category)) {
-                    return true;
-                }
-
-                const foundInIngredients = recipe.ingredients.some(ingredient =>
-                    regex.test(ingredient)
+            filteredRecipes = [...allRecipes];
+        } else {
+            try {
+                const regex = new RegExp(searchTerm, 'i');
+                filteredRecipes = allRecipes.filter(recipe =>
+                    regex.test(recipe.name) ||
+                    regex.test(recipe.category) ||
+                    recipe.ingredients.some(ingredient => regex.test(ingredient))
                 );
-
-                if (foundInIngredients) {
-                    return true;
-                }
-
-                return false;
-            });
-
-            const highlightedRecipes = filteredRecipes.map(recipe => {
-                return {
-                    ...recipe,
-                    name: highlightText(recipe.name, searchTerm),
-                    category: highlightText(recipe.category, searchTerm),
-                    ingredients: recipe.ingredients.map(ingredient =>
-                        highlightText(ingredient, searchTerm)
+            } catch (error) {
+                const term = searchTerm.toLowerCase();
+                filteredRecipes = allRecipes.filter(recipe =>
+                    recipe.name.toLowerCase().includes(term) ||
+                    recipe.category.toLowerCase().includes(term) ||
+                    recipe.ingredients.some(ingredient =>
+                        ingredient.toLowerCase().includes(term)
                     )
-                };
-            });
-
-            displayRecipes(highlightedRecipes);
-
-        } catch (error) {
-            console.error('Помилка в регулярному виразі:', error);
-            simpleSearch(searchTerm);
+                );
+            }
         }
+
+        currentPage = 1;
+        updatePagination();
     }
 
-    function simpleSearch(searchTerm) {
-        const term = searchTerm.toLowerCase();
-
-        const filteredRecipes = allRecipes.filter(recipe => {
-            if (recipe.name.toLowerCase().includes(term)) return true;
-            if (recipe.category.toLowerCase().includes(term)) return true;
-            return recipe.ingredients.some(ingredient =>
-                ingredient.toLowerCase().includes(term)
-            );
-        });
-
-        displayRecipes(filteredRecipes);
-    }
-
-    function highlightText(text, searchTerm) {
-        try {
-            const regex = new RegExp(`(${searchTerm})`, 'gi');
-            return text.replace(regex, '<mark>$1</mark>');
-        } catch (error) {
-            return text;
-        }
+    function clearSearch() {
+        searchInput.value = '';
+        filteredRecipes = [...allRecipes];
+        currentPage = 1;
+        updatePagination();
     }
 
     function showNoResultsMessage(viewType) {
         const message = document.createElement('div');
         message.className = 'no-results';
         message.innerHTML = `
-            <p>🔍 Рецептів за вашим запитом не знайдено.</p>
-            <p>Спробуйте інші ключові слова або перевірте правильність написання.</p>
+            <p>🔍 Рецептів не знайдено</p>
+            <p>Спробуйте змінити пошуковий запит або очистіть пошук</p>
         `;
 
         if (viewType === 'table') {
@@ -245,12 +283,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (confirm('Ви впевнені, що хочете видалити цей рецепт?')) {
             try {
                 allRecipes = allRecipes.filter(recipe => recipe.id !== id);
+                filteredRecipes = filteredRecipes.filter(recipe => recipe.id !== id);
 
                 localStorage.setItem('recipes', JSON.stringify(allRecipes.filter(recipe =>
-                    !recipe.id.startsWith('json-')
+                    !recipe.id.startsWith('json-') // Не зберігаємо оригінальні JSON рецепти
                 )));
 
-                displayRecipes(allRecipes);
+                updatePagination();
                 alert('Рецепт видалено!');
             } catch (error) {
                 console.error('Помилка видалення рецепту:', error);
@@ -305,12 +344,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     searchBtn.addEventListener('click', searchRecipes);
+    clearSearchBtn.addEventListener('click', clearSearch);
 
     searchInput.addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
             searchRecipes();
         }
-
     });
 
     tableViewBtn.addEventListener('click', function() {
@@ -318,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cardViewBtn.classList.remove('active');
         recipesTable.classList.remove('hidden');
         recipesCards.classList.add('hidden');
-        displayRecipes(allRecipes);
+        displayCurrentPage();
     });
 
     cardViewBtn.addEventListener('click', function() {
@@ -326,8 +365,20 @@ document.addEventListener('DOMContentLoaded', function() {
         tableViewBtn.classList.remove('active');
         recipesCards.classList.remove('hidden');
         recipesTable.classList.add('hidden');
-        displayRecipes(allRecipes);
+        displayCurrentPage();
     });
+
+    firstPageBtn.addEventListener('click', () => goToPage(1));
+    prevPageBtn.addEventListener('click', () => goToPage(currentPage - 1));
+    nextPageBtn.addEventListener('click', () => goToPage(currentPage + 1));
+    lastPageBtn.addEventListener('click', () => goToPage(totalPages));
+
+    pageSizeSelect.addEventListener('change', function() {
+        pageSize = parseInt(this.value);
+        currentPage = 1;
+        updatePagination();
+    });
+
     addCustomStyles();
 
     loadRecipes();
@@ -335,91 +386,125 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function addCustomStyles() {
     const styles = `
-        /* Підсвітка результатів пошуку */
-        mark {
-            background-color: #ffeb3b;
-            padding: 2px 4px;
-            border-radius: 3px;
-        }
-        
-        /* Модальне вікно */
-        .modal {
-            display: block;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
+        /* Стилі для пагінації */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: white;
             border-radius: 10px;
-            width: 80%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 1rem;
         }
         
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .close:hover {
-            color: black;
-        }
-        
-        .recipe-details {
-            margin-top: 20px;
-        }
-        
-        .ingredients-list ul, .instructions p {
-            margin-left: 20px;
-        }
-        
-        /* Повідомлення про відсутність результатів */
-        .no-results {
-            text-align: center;
-            padding: 3rem;
+        .pagination-info {
             color: #666;
-            font-style: italic;
-            grid-column: 1 / -1;
+            font-size: 0.9rem;
         }
         
-        .no-results p {
-            margin: 10px 0;
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         
-        /* Категорія в таблиці */
-        .category-badge {
+        .pagination-btn, .page-number {
+            padding: 0.5rem 0.8rem;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .pagination-btn:hover:not(:disabled),
+        .page-number:hover:not(.active) {
+            background: #f8f9fa;
+            border-color: #e74c3c;
+        }
+        
+        .pagination-btn:disabled {
+            background: #f8f9fa;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .page-number.active {
             background: #e74c3c;
             color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
+            border-color: #e74c3c;
         }
         
-        /* Кнопки */
-        .btn-info {
-            background: #3498db;
-            color: white;
+        .page-numbers {
+            display: flex;
+            gap: 0.3rem;
         }
         
-        .btn-small {
-            padding: 5px 10px;
-            margin: 2px;
-            border: none;
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .page-size-selector select {
+            padding: 0.3rem;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .results-count {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .search-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-controls input {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        @media (max-width: 768px) {
+            .pagination-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .search-controls {
+                flex-direction: column;
+            }
+            
+            .search-controls input,
+            .search-controls button {
+                width: 100%;
+            }
         }
     `;
 

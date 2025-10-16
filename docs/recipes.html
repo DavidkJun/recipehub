@@ -24,15 +24,25 @@
 <main class="container">
     <section class="search-section">
         <h2>Пошук рецептів</h2>
-        <input type="text" id="searchInput" placeholder="Введіть назву або інгредієнт...">
-        <button id="searchBtn" class="btn-primary">Пошук</button>
+        <div class="search-controls">
+            <input type="text" id="searchInput" placeholder="Введіть назву або інгредієнт...">
+            <button id="searchBtn" class="btn-primary">Пошук</button>
+            <button id="clearSearchBtn" class="btn-secondary">Очистити</button>
+        </div>
     </section>
 
     <section class="recipes-section">
-        <h2>Всі рецепти</h2>
-        <div class="view-toggle">
-            <button id="tableViewBtn" class="btn-secondary active">Таблиця</button>
-            <button id="cardViewBtn" class="btn-secondary">Картки</button>
+        <div class="section-header">
+            <h2>Всі рецепти</h2>
+            <div class="controls">
+                <div class="view-toggle">
+                    <button id="tableViewBtn" class="btn-secondary active">Таблиця</button>
+                    <button id="cardViewBtn" class="btn-secondary">Картки</button>
+                </div>
+                <div class="results-count">
+                    Знайдено: <span id="resultsCount">0</span> рецептів
+                </div>
+            </div>
         </div>
 
         <div id="recipesTable" class="recipes-view">
@@ -52,6 +62,31 @@
 
         <div id="recipesCards" class="recipes-view hidden">
             <div class="recipes-grid" id="recipesGrid">
+            </div>
+        </div>
+
+        <div class="pagination-container">
+            <div class="pagination-info">
+                Показано <span id="currentRange">0-0</span> з <span id="totalRecipes">0</span> рецептів
+            </div>
+            <div class="pagination-controls">
+                <button id="firstPageBtn" class="pagination-btn" disabled>«</button>
+                <button id="prevPageBtn" class="pagination-btn" disabled>‹</button>
+
+                <div class="page-numbers" id="pageNumbers">
+                </div>
+
+                <button id="nextPageBtn" class="pagination-btn">›</button>
+                <button id="lastPageBtn" class="pagination-btn">»</button>
+            </div>
+            <div class="page-size-selector">
+                <label for="pageSizeSelect">Рецептів на сторінці:</label>
+                <select id="pageSizeSelect">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
             </div>
         </div>
     </section>
