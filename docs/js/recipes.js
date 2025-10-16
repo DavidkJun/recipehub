@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 filteredRecipes = filteredRecipes.filter(recipe => recipe.id !== id);
 
                 localStorage.setItem('recipes', JSON.stringify(allRecipes.filter(recipe =>
-                    !recipe.id.startsWith('json-') // Не зберігаємо оригінальні JSON рецепти
+                    !recipe.id.startsWith('json-')
                 )));
 
                 updatePagination();
